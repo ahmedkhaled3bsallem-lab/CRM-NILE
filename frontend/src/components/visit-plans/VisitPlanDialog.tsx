@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -11,11 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 
-import {
-  Controller,
-  useForm,
-} from "react-hook-form";
-
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -28,17 +25,11 @@ import type { Customer } from "../../services/customerService";
 
 interface VisitPlanDialogProps {
   open: boolean;
-
   onClose: () => void;
-
-  onSave: (
-    data: VisitPlanForm
-  ) => void;
-
+  onSave: (data: VisitPlanForm) => void;
   representatives: Representative[];
-
   customers: Customer[];
-
+  displayCode: string;
   initialData: VisitPlanForm | null;
 }
 
@@ -48,92 +39,80 @@ export default function VisitPlanDialog({
   onSave,
   representatives,
   customers,
+  displayCode,
   initialData,
 }: VisitPlanDialogProps) {
-  const {
-    control,
-    handleSubmit,
-    reset,
-  } = useForm<VisitPlanForm>({
-    resolver: zodResolver(
-      visitPlanSchema
-    ),
-    defaultValues: {
-      code: "",
+  const { control, handleSubmit, reset, watch, setValue } =
+    useForm<VisitPlanForm>({
+      resolver: zodResolver(visitPlanSchema),
+      defaultValues: {
+        representative_id: undefined as unknown as number,
+        customer_ids: [],
+        visit_date: "",
+        planned_time: "",
+        priority: "Medium",
+        status: "Planned",
+        notes: "",
+      },
+    });
 
-      representative_id: null,
+  const representativeId = watch("representative_id");
+  const selectedCustomerIds = watch("customer_ids");
 
-      customer_id: null,
-
-      visit_date: "",
-
-      planned_time: "",
-
-      priority: "Medium",
-
-      status: "Planned",
-
-      notes: "",
-    },
-  });
+  const filteredCustomers = customers.filter(
+    (customer) => customer.representative_id === representativeId
+  );
 
   useEffect(() => {
     if (initialData) {
       reset(initialData);
     } else {
       reset({
-        code: "",
-
-        representative_id: null,
-
-        customer_id: null,
-
+        representative_id: undefined as unknown as number,
+        customer_ids: [],
         visit_date: "",
-
         planned_time: "",
-
         priority: "Medium",
-
         status: "Planned",
-
         notes: "",
       });
     }
-  }, [initialData, reset]);
-    return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-    >
+  }, [initialData, reset, open]);
+
+  useEffect(() => {
+    if (!representativeId) {
+      setValue("customer_ids", []);
+      return;
+    }
+
+    const allowedIds = customers
+      .filter((customer) => customer.representative_id === representativeId)
+      .map((customer) => customer.id);
+
+    const nextIds = selectedCustomerIds.filter((id) =>
+      allowedIds.includes(id)
+    );
+
+    if (nextIds.length !== selectedCustomerIds.length) {
+      setValue("customer_ids", nextIds);
+    }
+  }, [representativeId, customers, selectedCustomerIds, setValue]);
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>
-        {initialData
-          ? "Edit Visit Plan"
-          : "New Visit Plan"}
+        {initialData ? "Edit Visit Plan" : "New Visit Plan"}
       </DialogTitle>
 
       <DialogContent>
-        <Grid
-          container
-          spacing={2}
-          sx={{ mt: 1 }}
-        >
+        <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Controller
-              name="code"
-              control={control}
-              render={({ field, fieldState }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Code"
-                  error={!!fieldState.error}
-                  helperText={
-                    fieldState.error?.message
-                  }
-                />
-              )}
+            <TextField
+              fullWidth
+              label="Code"
+              value={displayCode}
+              disabled
+              helperText="Generated automatically"
             />
           </Grid>
 
@@ -147,21 +126,12 @@ export default function VisitPlanDialog({
                   fullWidth
                   label="Representative"
                   value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(
-                      Number(e.target.value)
-                    )
-                  }
+                  onChange={(e) => field.onChange(Number(e.target.value))}
                   error={!!fieldState.error}
-                  helperText={
-                    fieldState.error?.message
-                  }
+                  helperText={fieldState.error?.message}
                 >
                   {representatives.map((rep) => (
-                    <MenuItem
-                      key={rep.id}
-                      value={rep.id}
-                    >
+                    <MenuItem key={rep.id} value={rep.id}>
                       {rep.name}
                     </MenuItem>
                   ))}
@@ -170,35 +140,41 @@ export default function VisitPlanDialog({
             />
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12 }}>
             <Controller
-              name="customer_id"
+              name="customer_ids"
               control={control}
               render={({ field, fieldState }) => (
-                <TextField
-                  select
-                  fullWidth
-                  label="Customer"
-                  value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(
-                      Number(e.target.value)
-                    )
+                <Autocomplete
+                  multiple
+                  disabled={!representativeId}
+                  options={filteredCustomers}
+                  getOptionLabel={(option) => option.name}
+                  value={filteredCustomers.filter((customer) =>
+                    field.value.includes(customer.id)
+                  )}
+                  onChange={(_, value) =>
+                    field.onChange(value.map((customer) => customer.id))
                   }
-                  error={!!fieldState.error}
-                  helperText={
-                    fieldState.error?.message
-                  }
-                >
-                  {customers.map((customer) => (
-                    <MenuItem
-                      key={customer.id}
-                      value={customer.id}
-                    >
-                      {customer.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Customers"
+                      placeholder={
+                        representativeId
+                          ? "Select one or more customers"
+                          : "Select representative first"
+                      }
+                      error={!!fieldState.error}
+                      helperText={
+                        fieldState.error?.message ||
+                        (representativeId
+                          ? "Only customers assigned to this representative"
+                          : "Choose a representative first")
+                      }
+                    />
+                  )}
+                />
               )}
             />
           </Grid>
@@ -212,14 +188,10 @@ export default function VisitPlanDialog({
                   {...field}
                   type="date"
                   fullWidth
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                  InputLabelProps={{ shrink: true }}
                   label="Visit Date"
                   error={!!fieldState.error}
-                  helperText={
-                    fieldState.error?.message
-                  }
+                  helperText={fieldState.error?.message}
                 />
               )}
             />
@@ -234,19 +206,16 @@ export default function VisitPlanDialog({
                   {...field}
                   type="time"
                   fullWidth
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                  InputLabelProps={{ shrink: true }}
                   label="Planned Time"
                   error={!!fieldState.error}
-                  helperText={
-                    fieldState.error?.message
-                  }
+                  helperText={fieldState.error?.message}
                 />
               )}
             />
           </Grid>
-                    <Grid size={{ xs: 12, md: 6 }}>
+
+          <Grid size={{ xs: 12, md: 6 }}>
             <Controller
               name="priority"
               control={control}
@@ -257,21 +226,11 @@ export default function VisitPlanDialog({
                   fullWidth
                   label="Priority"
                   error={!!fieldState.error}
-                  helperText={
-                    fieldState.error?.message
-                  }
+                  helperText={fieldState.error?.message}
                 >
-                  <MenuItem value="Low">
-                    Low
-                  </MenuItem>
-
-                  <MenuItem value="Medium">
-                    Medium
-                  </MenuItem>
-
-                  <MenuItem value="High">
-                    High
-                  </MenuItem>
+                  <MenuItem value="Low">Low</MenuItem>
+                  <MenuItem value="Medium">Medium</MenuItem>
+                  <MenuItem value="High">High</MenuItem>
                 </TextField>
               )}
             />
@@ -288,21 +247,11 @@ export default function VisitPlanDialog({
                   fullWidth
                   label="Status"
                   error={!!fieldState.error}
-                  helperText={
-                    fieldState.error?.message
-                  }
+                  helperText={fieldState.error?.message}
                 >
-                  <MenuItem value="Planned">
-                    Planned
-                  </MenuItem>
-
-                  <MenuItem value="Completed">
-                    Completed
-                  </MenuItem>
-
-                  <MenuItem value="Cancelled">
-                    Cancelled
-                  </MenuItem>
+                  <MenuItem value="Planned">Planned</MenuItem>
+                  <MenuItem value="Completed">Completed</MenuItem>
+                  <MenuItem value="Cancelled">Cancelled</MenuItem>
                 </TextField>
               )}
             />
@@ -326,26 +275,12 @@ export default function VisitPlanDialog({
         </Grid>
       </DialogContent>
 
-      <DialogActions
-        sx={{
-          px: 3,
-          pb: 3,
-        }}
-      >
-        <Button
-          onClick={onClose}
-          color="inherit"
-        >
+      <DialogActions sx={{ px: 3, pb: 3 }}>
+        <Button onClick={onClose} color="inherit">
           Cancel
         </Button>
-
-        <Button
-          variant="contained"
-          onClick={handleSubmit(onSave)}
-        >
-          {initialData
-            ? "Update"
-            : "Create"}
+        <Button variant="contained" onClick={handleSubmit(onSave)}>
+          {initialData ? "Update" : "Create"}
         </Button>
       </DialogActions>
     </Dialog>
