@@ -1,0 +1,15 @@
+from app.auth.jwt import create_access_token, decode_access_token
+
+token = create_access_token(
+    {
+        "sub": "admin"
+    }
+)
+
+print("TOKEN")
+print(token)
+
+print()
+
+print("DECODED")
+print(decode_access_token(token))
