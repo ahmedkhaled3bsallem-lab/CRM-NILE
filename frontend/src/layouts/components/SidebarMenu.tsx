@@ -30,44 +30,36 @@ const menuItems = [
     icon: <Dashboard />,
     path: "/",
   },
-
   {
     title: "Customers",
     icon: <People />,
     path: "/customers",
   },
-
   {
     title: "Representatives",
     icon: <Badge />,
     path: "/representatives",
   },
-
   {
-   title: "Visit Plans",
-   icon: <EventNote />,
-   path: "/visit-plans",
+    title: "Visit Plans",
+    icon: <EventNote />,
+    path: "/visit-plans",
   },
-
   {
     title: "Visits",
     icon: <LocationOn />,
     path: "/visits",
   },
-
   {
     title: "Reports",
     icon: <Assessment />,
     path: "/reports",
   },
-
   {
     title: "Settings",
     icon: <Settings />,
     path: "/settings",
   },
-
-  
 ];
 
 export default function SidebarMenu({
@@ -106,6 +98,7 @@ export default function SidebarMenu({
           >
             <NavLink
               to={item.path}
+              end={item.path === "/"}
               style={{
                 textDecoration: "none",
               }}
@@ -115,19 +108,14 @@ export default function SidebarMenu({
                   sx={{
                     borderRadius: 3,
                     mb: 1,
-
                     minHeight: 50,
-
                     justifyContent: collapsed
                       ? "center"
                       : "flex-start",
-
                     background: isActive
                       ? "linear-gradient(90deg,#1976D2,#42A5F5)"
                       : "transparent",
-
                     color: "#fff",
-
                     "&:hover": {
                       background: isActive
                         ? "linear-gradient(90deg,#1976D2,#42A5F5)"
@@ -138,9 +126,7 @@ export default function SidebarMenu({
                   <ListItemIcon
                     sx={{
                       color: "#fff",
-                      minWidth: collapsed
-                        ? 0
-                        : 42,
+                      minWidth: collapsed ? 0 : 42,
                     }}
                   >
                     {item.icon}
@@ -151,9 +137,7 @@ export default function SidebarMenu({
                       primary={item.title}
                       primaryTypographyProps={{
                         fontSize: 15,
-                        fontWeight: isActive
-                          ? 700
-                          : 500,
+                        fontWeight: isActive ? 700 : 500,
                       }}
                     />
                   )}

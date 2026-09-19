@@ -1,15 +1,14 @@
 import { z } from "zod";
 
 export const visitPlanSchema = z.object({
-  code: z.string().min(1, "Code is required"),
-
   representative_id: z
-    .number()
-    .nullable(),
+    .number({
+      error: "Representative is required",
+    }),
 
-  customer_id: z
-    .number()
-    .nullable(),
+  customer_ids: z
+    .array(z.number())
+    .min(1, "Select at least one customer"),
 
   visit_date: z.string().min(1, "Visit date is required"),
 

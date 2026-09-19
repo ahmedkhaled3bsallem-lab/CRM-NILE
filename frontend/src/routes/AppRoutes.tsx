@@ -10,7 +10,6 @@ import Reports from "../pages/Reports";
 import Settings from "../pages/Settings";
 import Login from "../pages/Login";
 
-
 export default function AppRoutes() {
   const { token } = useAuth();
 
@@ -50,15 +49,15 @@ export default function AppRoutes() {
           </MainLayout>
         }
       />
-      
+
       <Route
-       path="/visit-plans"
-       element={
-         <MainLayout>
-           <VisitPlans />
-         </MainLayout>
-     }
-   />
+        path="/visit-plans"
+        element={
+          <MainLayout>
+            <VisitPlans />
+          </MainLayout>
+        }
+      />
 
       <Route
         path="/visits"
@@ -68,7 +67,6 @@ export default function AppRoutes() {
           </MainLayout>
         }
       />
-
 
       <Route
         path="/reports"
@@ -88,10 +86,7 @@ export default function AppRoutes() {
         }
       />
 
-      <Route
-        path="*"
-        element={<Navigate to="/" replace />}
-      />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

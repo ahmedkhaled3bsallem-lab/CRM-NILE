@@ -117,12 +117,6 @@ export default function VisitDialog({
     defaultValues,
   });
 
-  /*
-   * ==========================================
-   * RESET FORM
-   * ==========================================
-   */
-
   useEffect(() => {
     if (initialData) {
       reset(initialData);
@@ -134,38 +128,13 @@ export default function VisitDialog({
     reset,
   ]);
 
-  /*
-   * ==========================================
-   * WATCH VALUES
-   * ==========================================
-   */
-
   const visitPlanId = watch(
     "visit_plan_id"
-  );
-
-  const orderExists = watch(
-    "order_exists"
-  );
-
-  const collectionExists = watch(
-    "collection_exists"
   );
 
   const followUp = watch(
     "need_follow_up"
   );
-
-  /*
-   * ==========================================
-   * GENERATE NEXT VISIT CODE
-   *
-   * V0001
-   * V0002
-   * V0003
-   * ...
-   * ==========================================
-   */
 
   const nextVisitCode = useMemo(() => {
     let maxNumber = 0;
@@ -197,12 +166,6 @@ export default function VisitDialog({
     ).padStart(4, "0")}`;
   }, [visits]);
 
-  /*
-   * ==========================================
-   * SET AUTOMATIC CODE FOR NEW VISIT
-   * ==========================================
-   */
-
   useEffect(() => {
     if (
       open &&
@@ -219,12 +182,6 @@ export default function VisitDialog({
     nextVisitCode,
     setValue,
   ]);
-
-  /*
-   * ==========================================
-   * FIND SELECTED VISIT PLAN
-   * ==========================================
-   */
 
   const selectedVisitPlan =
     useMemo(() => {
@@ -246,12 +203,6 @@ export default function VisitDialog({
       visitPlanId,
       visitPlans,
     ]);
-
-  /*
-   * ==========================================
-   * AUTO-FILL VISIT PLAN DATA
-   * ==========================================
-   */
 
   useEffect(() => {
     if (!selectedVisitPlan) {
@@ -286,21 +237,9 @@ export default function VisitDialog({
     setValue,
   ]);
 
-  /*
-   * ==========================================
-   * SUBMIT
-   * ==========================================
-   */
-
   function handleFormSubmit(
     data: VisitForm
   ) {
-    /*
-     * New Visit:
-     * always use the automatically
-     * generated code.
-     */
-
     if (!initialData) {
       data.code =
         nextVisitCode;
@@ -330,10 +269,6 @@ export default function VisitDialog({
             mt: 0.5,
           }}
         >
-          {/* ========================= */}
-          {/* CODE */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
@@ -368,10 +303,6 @@ export default function VisitDialog({
               )}
             />
           </Grid>
-
-          {/* ========================= */}
-          {/* VISIT PLAN */}
-          {/* ========================= */}
 
           <Grid
             size={{
@@ -424,10 +355,6 @@ export default function VisitDialog({
               )}
             />
           </Grid>
-
-          {/* ========================= */}
-          {/* REPRESENTATIVE */}
-          {/* ========================= */}
 
           <Grid
             size={{
@@ -483,10 +410,6 @@ export default function VisitDialog({
               )}
             />
           </Grid>
-
-          {/* ========================= */}
-          {/* CUSTOMER */}
-          {/* ========================= */}
 
           <Grid
             size={{
@@ -545,10 +468,6 @@ export default function VisitDialog({
             />
           </Grid>
 
-          {/* ========================= */}
-          {/* VISIT DATE */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
@@ -578,10 +497,6 @@ export default function VisitDialog({
             />
           </Grid>
 
-          {/* ========================= */}
-          {/* PLANNED TIME */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
@@ -602,10 +517,6 @@ export default function VisitDialog({
               }}
             />
           </Grid>
-
-          {/* ========================= */}
-          {/* CHECK IN */}
-          {/* ========================= */}
 
           <Grid
             size={{
@@ -640,10 +551,6 @@ export default function VisitDialog({
             />
           </Grid>
 
-          {/* ========================= */}
-          {/* CHECK OUT */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
@@ -676,10 +583,6 @@ export default function VisitDialog({
               )}
             />
           </Grid>
-
-          {/* ========================= */}
-          {/* LATITUDE */}
-          {/* ========================= */}
 
           <Grid
             size={{
@@ -716,10 +619,6 @@ export default function VisitDialog({
             />
           </Grid>
 
-          {/* ========================= */}
-          {/* LONGITUDE */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
@@ -755,10 +654,6 @@ export default function VisitDialog({
             />
           </Grid>
 
-          {/* ========================= */}
-          {/* VISIT STATUS */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
@@ -793,10 +688,6 @@ export default function VisitDialog({
             />
           </Grid>
 
-          {/* ========================= */}
-          {/* VISIT RESULT */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
@@ -826,10 +717,6 @@ export default function VisitDialog({
             />
           </Grid>
 
-          {/* ========================= */}
-          {/* VISIT NOTES */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
@@ -852,271 +739,69 @@ export default function VisitDialog({
             />
           </Grid>
 
-          {/* ========================= */}
-          {/* ORDER */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
+              md: 6,
             }}
           >
             <Controller
-              name="order_exists"
+              name="order_notes"
               control={control}
               render={({
                 field,
               }) => (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={
-                        field.value
-                      }
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target
-                            .checked
-                        )
-                      }
-                    />
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label="Order notes"
+                  placeholder="What happened about the order in this visit..."
+                  value={
+                    field.value ?? ""
                   }
-                  label="Order Created"
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value ||
+                        null
+                    )
+                  }
                 />
               )}
             />
           </Grid>
 
-          {orderExists && (
-            <>
-              <Grid
-                size={{
-                  xs: 12,
-                  md: 4,
-                }}
-              >
-                <Controller
-                  name="order_amount"
-                  control={control}
-                  render={({
-                    field,
-                  }) => (
-                    <TextField
-                      type="number"
-                      fullWidth
-                      label="Order Amount"
-                      value={
-                        field.value ??
-                        ""
-                      }
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target
-                            .value ===
-                            ""
-                            ? null
-                            : Number(
-                                e.target
-                                  .value
-                              )
-                        )
-                      }
-                    />
-                  )}
-                />
-              </Grid>
-
-              <Grid
-                size={{
-                  xs: 12,
-                  md: 8,
-                }}
-              >
-                <Controller
-                  name="order_notes"
-                  control={control}
-                  render={({
-                    field,
-                  }) => (
-                    <TextField
-                      fullWidth
-                      label="Order Notes"
-                      value={
-                        field.value ??
-                        ""
-                      }
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target
-                            .value ||
-                            null
-                        )
-                      }
-                    />
-                  )}
-                />
-              </Grid>
-            </>
-          )}
-
-          {/* ========================= */}
-          {/* COLLECTION */}
-          {/* ========================= */}
-
           <Grid
             size={{
               xs: 12,
+              md: 6,
             }}
           >
             <Controller
-              name="collection_exists"
+              name="collection_notes"
               control={control}
               render={({
                 field,
               }) => (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={
-                        field.value
-                      }
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target
-                            .checked
-                        )
-                      }
-                    />
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label="Collection notes"
+                  placeholder="Any collection notes for this visit..."
+                  value={
+                    field.value ?? ""
                   }
-                  label="Collection Received"
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value ||
+                        null
+                    )
+                  }
                 />
               )}
             />
           </Grid>
-
-          {collectionExists && (
-            <>
-              <Grid
-                size={{
-                  xs: 12,
-                  md: 4,
-                }}
-              >
-                <Controller
-                  name="collection_amount"
-                  control={control}
-                  render={({
-                    field,
-                  }) => (
-                    <TextField
-                      fullWidth
-                      type="number"
-                      label="Collection Amount"
-                      value={
-                        field.value ??
-                        ""
-                      }
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target
-                            .value ===
-                            ""
-                            ? null
-                            : Number(
-                                e.target
-                                  .value
-                              )
-                        )
-                      }
-                    />
-                  )}
-                />
-              </Grid>
-
-              <Grid
-                size={{
-                  xs: 12,
-                  md: 4,
-                }}
-              >
-                <Controller
-                  name="payment_method"
-                  control={control}
-                  render={({
-                    field,
-                  }) => (
-                    <TextField
-                      select
-                      fullWidth
-                      label="Payment Method"
-                      value={
-                        field.value ??
-                        ""
-                      }
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target
-                            .value ||
-                            null
-                        )
-                      }
-                    >
-                      <MenuItem value="">
-                        Select
-                      </MenuItem>
-
-                      <MenuItem value="Cash">
-                        Cash
-                      </MenuItem>
-
-                      <MenuItem value="Cheque">
-                        Cheque
-                      </MenuItem>
-
-                      <MenuItem value="Transfer">
-                        Bank Transfer
-                      </MenuItem>
-                    </TextField>
-                  )}
-                />
-              </Grid>
-
-              <Grid
-                size={{
-                  xs: 12,
-                  md: 4,
-                }}
-              >
-                <Controller
-                  name="collection_notes"
-                  control={control}
-                  render={({
-                    field,
-                  }) => (
-                    <TextField
-                      fullWidth
-                      label="Collection Notes"
-                      value={
-                        field.value ??
-                        ""
-                      }
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target
-                            .value ||
-                            null
-                        )
-                      }
-                    />
-                  )}
-                />
-              </Grid>
-            </>
-          )}
-
-          {/* ========================= */}
-          {/* FOLLOW UP */}
-          {/* ========================= */}
 
           <Grid
             size={{
